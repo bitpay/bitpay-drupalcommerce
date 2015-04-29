@@ -1,0 +1,7 @@
+build
+composer.lock
+vendor
+bin
+www
+log
+.DS_STORE

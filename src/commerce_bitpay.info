@@ -1,0 +1,9 @@
+name = Commerce BitPay
+description = Implements BitPay payment services for use with Drupal Commerce.
+package = Commerce (contrib)
+dependencies[] = commerce
+dependencies[] = commerce_payment
+core = 7.x
+configure = admin/settings/commerce-bitpay
+php = 5.4
+version = 7.x-2.3.0

@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * @file
+ * Provides a Libraries module based loader for the Paymill API.
+ */
+
+// Autoload if necessary
+if (!class_exists('Bitpay/Bitpay')) {
+    // Load up the BitPay library
+    $autoloader = __DIR__.'/libraries/Bitpay/Autoloader.php';
+    if (true === file_exists($autoloader) &&
+        true === is_readable($autoloader)) {
+        require_once $autoloader;
+        \Bitpay\Autoloader::register();
+    } else {
+        throw new Exception('BitPay Library could not be loaded');
+    }
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function commerce_bitpay_requirements($phase) {
+    $t = get_t();
+    $values = $descriptions = array();
+
+    $lib_requirements = \Bitpay\Util\Util::checkRequirements();
+
+    foreach ($lib_requirements as $key => $val) {
+        $met = "enabled";
+        $unmet = "missing";
+        switch ($key) {
+          case 'PHP':
+            $key = 'PHP >= 5.4';
+            $met = 'pass';
+            $unmet = 'fail';
+            break;
+          case 'cURL.SSL':
+            $key = 'cURL SSL';
+            $unmet = 'disabled';
+            break;
+          case 'Math':
+            $met = (extension_loaded('gmp')) ? 'best' : 'acceptable';
+            break;
+        }
+        $passes = ($val === true) ? '<span class="admin-enabled">'.$met.'</span>' : '<span class="admin-'.$unmet.'">'.$unmet.'</span>';
+        $values[] = "$key ($passes)";
+    }
+
+    $requirements = array();
+    $requirements['bitpay'] = array(
+        'title' => $t('BitPay'),
+        'value' => implode(', ', $values),
+        'description' => implode(' ', $descriptions),
+        'severity' => (empty($description)) ? REQUIREMENT_OK : REQUIREMENT_ERROR,
+    );
+
+    return $requirements;
+}

@@ -1,0 +1,193 @@
+<?php
+
+
+ /**
+  * @file
+  * Implements BitPay payment services for use with Drupal Commerce.
+  */
+ define('COMMERCE_BITPAY_VERSION', '7.x-2.3.0');
+ define('COMMERCE_BITPAY_MODE_TEST', 'testnet');
+ define('COMMERCE_BITPAY_MODE_LIVE', 'livenet');
+
+require_once __DIR__.'/includes/commerce_bitpay.library.inc';
+require_once __DIR__.'/includes/commerce_bitpay.currency.inc';
+require_once __DIR__.'/includes/commerce_bitpay.checkout.inc';
+
+/**
+ * Implements hook_commerce_payment_method_info().
+ */
+function commerce_bitpay_commerce_payment_method_info()
+{
+    $payment_methods = array();
+
+    $payment_methods['commerce_bitpay'] = array(
+    'title' => t('BitPay'),
+    'display_title' => t('Bitcoin'),
+    'description' => t('Provides Bitcoin payment during checkout via BitPay.'),
+    'terminal' => false,
+        'offsite' => true,
+    'offsite_autoredirect' => true,
+  );
+
+    return $payment_methods;
+}
+
+/**
+ * Returns the default settings for the BitPay payment method.
+ */
+function commerce_bitpay_default_settings()
+{
+    return array(
+        'risk_speed' => 'medium',
+        'advanced' => array(
+            'debug_logging' => 0,
+            'url_notification' => '',
+            'url_return' => '',
+        ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function commerce_bitpay_menu()
+{
+    $items = array();
+
+  // Add a menu item for configuring the detail payment rule
+  $items['admin/settings/commerce-bitpay'] = array(
+    'title' => 'Commerce BitPay Configuration',
+    'description' => 'Configure the Commerce BitPay module',
+    'page callback' => 'commerce_bitpay_configure',
+    'access arguments' => array('administer payment methods'),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/commerce_bitpay.admin.inc',
+  );
+
+  // Connect to BitPay
+  $items['admin/bitpay/connect'] = array(
+        'title' => 'Connect to BitPay',
+    'description' => 'Connect to BitPay',
+    'page callback' => 'commerce_bitpay_connect',
+        'page arguments' => array(3),
+    'access arguments' => array('administer payment methods'),
+        'type' => MENU_CALLBACK,
+    'file' => 'includes/commerce_bitpay.admin.inc',
+  );
+
+    // Disconnect to BitPay
+  $items['admin/bitpay/disconnect'] = array(
+        'title' => 'Disconnect from BitPay',
+    'description' => 'Disconnect from BitPay',
+    'page callback' => 'commerce_bitpay_disconnect',
+    'access arguments' => array('administer payment methods'),
+        'type' => MENU_CALLBACK,
+    'file' => 'includes/commerce_bitpay.admin.inc',
+  );
+
+    // IPN Handler
+  $items['bitpay/ipn/%commerce_order/%commerce_payment_transaction'] = array(
+    'title' => 'BitPay IPN Handler',
+    'page callback' => 'commerce_bitpay_ipn_handler',
+    'page arguments' => array(2, 3),
+    'access callback' => true,
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/commerce_bitpay.ipn.inc',
+  );
+
+  // Connect to BitPay
+  $items['admin/advanced_help/commerce_bitpay'] = array(
+        'title' => 'Connect to BitPay',
+    'description' => 'Connect to BitPay',
+    'page callback' => 'commerce_bitpay_connect',
+        'page arguments' => array(3),
+    'access arguments' => array('administer payment methods'),
+        'type' => MENU_CALLBACK,
+    'file' => 'includes/commerce_bitpay.admin.inc',
+  );
+
+    return $items;
+}
+
+/**
+ * Implements hook_settings_form().
+ */
+function commerce_bitpay_settings_form($settings = null)
+{
+    $form = array();
+    global $base_url;
+
+    $settings = (array) $settings + commerce_bitpay_default_settings();
+    commerce_bitpay_connected();
+
+    $bitpay_network = commerce_bitpay_setting('network');
+    $url_connected = url('payment/bitpay/connected');
+    $network_title = ucwords($bitpay_network);
+    $text_connected = 'Connected to '.$network_title;
+
+    $connection = commerce_bitpay_setting('connection');
+    if ($connection === 'connected') {
+        $connected_display = 'block';
+        $disconnected_display = 'none';
+    } else {
+        $disconnected_display = 'block';
+        $connected_display = 'none';
+    }
+
+    $connection_markup =  '<label>API Connection</label>';
+    $connection_markup .= '<div id="bitpay-api-disconnected" style="display: '.$disconnected_display.'">';
+    $connection_markup .= t('<div><a href="@url" class="button">Connect to BitPay Live</a></div>', array('@url' => url('admin/bitpay/connect/'.COMMERCE_BITPAY_MODE_LIVE)));
+    $connection_markup .= t('<div><a href="@url" class="button">Connect to BitPay Test</a></div>', array('@url' => url('admin/bitpay/connect/'.COMMERCE_BITPAY_MODE_TEST)));
+    $connection_markup .= '</div>';
+    $connection_markup .= '<div id="bitpay-api-connected" style="display: '.$connected_display.'">';
+    $connection_markup .= t('<div>Connected to @network <a href="@url" class="button">Disconnect</a></div>', array('@network' => $network_title, '@url' => url('admin/bitpay/disconnect')));
+    $connection_markup .= '</div>';
+
+    $form['connection'] = array(
+    '#markup' => $connection_markup,
+  );
+
+    $form['risk_speed'] = array(
+    '#type' => 'select',
+    '#title' => t('Risk/Speed'),
+    '#options' => array(
+      'low' => t('Low'),
+      'medium' => t('Medium'),
+      'high' => t('High'),
+    ),
+    '#default_value' => $settings['risk_speed'],
+  );
+
+    $form['advanced'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Advanced Settings'),
+    '#collapsible' => true,
+    '#collapsed' => true,
+  );
+
+    $form['advanced']['debug_logging'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Debug Logging'),
+    '#default_value' => $settings['advanced']['debug_logging'],
+  );
+
+  $placeholder_notification = $base_url . '/bitpay/ipn/%commerce_order/%commerce_payment_transaction';
+    $form['advanced']['url_notification'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Notification URL'),
+    '#attributes' => array('placeholder' => $placeholder_notification),
+    '#default_value' => $settings['advanced']['url_notification'],
+    '#field_suffix' => '<span>Leave blank to use default</span>',
+  );
+
+  $placeholder_return = $base_url . '/checkout/%commerce_order/complete';
+    $form['advanced']['url_return'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Return URL'),
+    '#attributes' => array('placeholder' => $placeholder_return),
+    '#default_value' => $settings['advanced']['url_return'],
+    '#field_suffix' => '<span>Leave blank to use default</span>',
+  );
+
+    return $form;
+}
