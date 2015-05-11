@@ -12,7 +12,7 @@ if (!class_exists('Bitpay/Autoloader')) {
     \Bitpay\Autoloader::register();
   }
   else {
-    throw new Exception('BitPay Library could not be loaded');
+    throw new \Exception('BitPay Library could not be loaded');
   }
 }
 
@@ -142,7 +142,7 @@ function commerce_bitpay_check_connection() {
 function commerce_bitpay_generate_id() {
 
   // Generate new keys.
-  $private_key = new Bitpay\PrivateKey();
+  $private_key = new \Bitpay\PrivateKey();
   $private_key->generate();
   $public_key = $private_key->getPublicKey();
 
@@ -169,7 +169,7 @@ function commerce_bitpay_get_client($network = NULL) {
   $network = commerce_bitpay_get_network($network);
 
   $curl_options = array();
-  if ($network instanceof Bitpay\Network\Customnet) {
+  if ($network instanceof \Bitpay\Network\Customnet) {
 
     // Customize the curl options.
     $curl_options = array(
@@ -177,12 +177,12 @@ function commerce_bitpay_get_client($network = NULL) {
       CURLOPT_SSL_VERIFYHOST => FALSE,
     );
   }
-  $adapter = new Bitpay\Client\Adapter\CurlAdapter($curl_options);
+  $adapter = new \Bitpay\Client\Adapter\CurlAdapter($curl_options);
 
   $private_key = commerce_bitpay_get_private_key();
   $public_key  = commerce_bitpay_get_public_key();
 
-  $client = new Bitpay\Client\Client();
+  $client = new \Bitpay\Client\Client();
   $client->setPrivateKey($private_key);
   $client->setPublicKey($public_key);
   $client->setNetwork($network);
@@ -244,19 +244,19 @@ function commerce_bitpay_get_network($network = NULL) {
   $network = (empty($network)) ? commerce_bitpay_setting('network') : $network;
   commerce_bitpay_log('trace', 'Getting Network: ' . var_export($network, TRUE));
   if ($network === 'livenet') {
-    return new Bitpay\Network\Livenet();
+    return new \Bitpay\Network\Livenet();
   }
   elseif ($network === 'testnet') {
-    return new Bitpay\Network\Testnet();
+    return new \Bitpay\Network\Testnet();
   }
   elseif (is_array($network)) {
     if (isset($network['url']) && isset($network['port']) && isset($network['port_required'])) {
-      return new Bitpay\Network\Customnet($network['url'], (int) $network['port'], (boolean) $network['port_required']);
+      return new \Bitpay\Network\Customnet($network['url'], (int) $network['port'], (boolean) $network['port_required']);
     }
   }
   commerce_bitpay_setting('network', 'livenet');
 
-  return new Bitpay\Network\Livenet();
+  return new \Bitpay\Network\Livenet();
 }
 
 /**
@@ -283,11 +283,11 @@ function commerce_bitpay_get_private_key() {
   $private_key = @unserialize(commerce_bitpay_decrypt($private_key));
 
   // Check for key integrity.
-  if (!($private_key instanceof Bitpay\PrivateKey)) {
+  if (!($private_key instanceof \Bitpay\PrivateKey)) {
     commerce_bitpay_log('error', sprintf('log_private_key_wrong_type', gettype($private_key)));
     commerce_bitpay_log('trace', sprintf('log_encrypted_key', $private_key));
     commerce_bitpay_log('trace', sprintf('log_decrypted_key', commerce_bitpay_decrypt($private_key)));
-    throw new UnexpectedValueException();
+    throw new \UnexpectedValueException();
   }
 
   return $private_key;
@@ -315,7 +315,7 @@ function commerce_bitpay_get_public_key() {
   $public_key = @unserialize(commerce_bitpay_decrypt($public_key));
 
   // Check for key integrity.
-  if (!($public_key instanceof Bitpay\PublicKey)) {
+  if (!($public_key instanceof \Bitpay\PublicKey)) {
     commerce_bitpay_log('error', sprintf('log_public_key_wrong_type'), gettype($public_key));
     commerce_bitpay_log('trace', sprintf('log_encrypted_key'), $public_key);
     commerce_bitpay_log('trace', sprintf('log_decrypted_key'), commerce_bitpay_decrypt($public_key));
