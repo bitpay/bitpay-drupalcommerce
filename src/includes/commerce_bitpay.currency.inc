@@ -35,10 +35,14 @@ function commerce_bitpay_bitcoin_currency_convert($amount, $currency_code, $targ
   $amount *= pow(10, $exponent);
 
   $response = drupal_http_request('https://bitpay.com/rates/' . $target_currency_code);
-  if ($response->code == 200) {
+  if ('200' === $response->code) {
     $bitpay_rate = json_decode($response->data, TRUE);
-    return $amount * $bitpay_rate['data']['rate'];
+    if (isset($bitpay_rate['data']['rate'])) {
+      return $amount * $bitpay_rate['data']['rate'];
+    }
+    commerce_bitpay_log('error', t('Invalid data from BitPay for BTC conversion rate'));
+    throw new \Exception('Invalid data from BitPay for BTC conversion rate');
   }
-
-  return $amount;
+  commerce_bitpay_log('error', t('Could not retrieve BTC conversion rate from BitPay'));
+  throw new \Exception('Could not retrieve BTC conversion rate from BitPay');
 };
