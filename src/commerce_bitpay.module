@@ -38,7 +38,7 @@ function commerce_bitpay_commerce_payment_method_info()
 function commerce_bitpay_default_settings()
 {
     return array(
-        'risk_speed' => 'medium',
+        'risk_speed' => 'low',
         'advanced' => array(
             'debug_logging' => 0,
             'url_notification' => '',
