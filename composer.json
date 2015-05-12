@@ -1,5 +1,5 @@
 {
-    "name": "bitpay/opencart-plugin",
+    "name": "bitpay/bitpay-drupalcommerce",
     "description": "BitPay Payment Module for Drupal Commerce",
     "version": "2.3.0",
     "type": "drupalcommerce-module",

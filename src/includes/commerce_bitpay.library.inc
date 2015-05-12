@@ -6,7 +6,7 @@
 
 if (!class_exists('Bitpay/Autoloader')) {
   // Load up the BitPay library.
-  $autoloader = __DIR__ . '/../libraries/Bitpay/Autoloader.php';
+  $autoloader = __DIR__ . '/../libraries/bitpay/Autoloader.php';
   if (TRUE === file_exists($autoloader) && TRUE === is_readable($autoloader)) {
     require_once $autoloader;
     \Bitpay\Autoloader::register();

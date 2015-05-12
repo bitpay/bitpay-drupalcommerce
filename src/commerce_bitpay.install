@@ -6,16 +6,16 @@
  */
 
 // Autoload if necessary
-if (!class_exists('Bitpay/Bitpay')) {
-    // Load up the BitPay library
-    $autoloader = __DIR__.'/libraries/Bitpay/Autoloader.php';
-    if (true === file_exists($autoloader) &&
-        true === is_readable($autoloader)) {
-        require_once $autoloader;
-        \Bitpay\Autoloader::register();
-    } else {
-        throw new Exception('BitPay Library could not be loaded');
-    }
+if (!class_exists('Bitpay/Autoloader')) {
+  // Load up the BitPay library.
+  $autoloader = __DIR__ . '/libraries/bitpay/Autoloader.php';
+  if (TRUE === file_exists($autoloader) && TRUE === is_readable($autoloader)) {
+    require_once $autoloader;
+    \Bitpay\Autoloader::register();
+  }
+  else {
+    throw new \Exception('BitPay Library could not be loaded');
+  }
 }
 
 /**

@@ -75,6 +75,6 @@ class RoboFile extends \Robo\Tasks
              ->from('{{bitpay_lib_version}}')
              ->to($this->depver('bitpay/php-client'))
              ->run();
-        $this->taskExec('zip')->dir('build/commerce-bitpay')->arg('-r')->arg('../commerce-bitpay.zip')->arg('./')->run();
+        $this->taskExec('zip')->dir('build')->arg('-r')->arg('./commerce_bitpay.zip')->arg('./')->run();
     }
 }

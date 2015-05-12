@@ -47,19 +47,19 @@ function commerce_bitpay_ipn_handler($order, $transaction) {
   // Update the order and transaction.
   switch ($invoice->getStatus()) {
     case 'paid':
-            commerce_checkout_complete($order);
+      commerce_checkout_complete($order);
       $transaction->status = COMMERCE_PAYMENT_STATUS_PENDING;
       $transaction->message = t('Invoice paid, but awaiting confirmation.');
       break;
 
     case 'confirmed':
-            commerce_checkout_complete($order);
+      commerce_checkout_complete($order);
       $transaction->status = COMMERCE_PAYMENT_STATUS_SUCCESS;
       $transaction->message = t('Invoice payment confirmed.');
       break;
 
     case 'complete':
-            commerce_checkout_complete($order);
+      commerce_checkout_complete($order);
       $transaction->status = COMMERCE_PAYMENT_STATUS_SUCCESS;
       $transaction->message = t('Invoice payment complete.');
       break;
