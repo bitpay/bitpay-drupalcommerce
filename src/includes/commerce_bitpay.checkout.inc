@@ -119,7 +119,7 @@ function commerce_bitpay_redirect_form($form, &$form_state, $order, $payment_met
     commerce_payment_transaction_save($transaction);
   }
   catch (\Exception $e) {
-    drupal_set_message(t('Sorry, but there was a problem communicating with BitPay for Bitcoin checkout.', array(), 'error'));
+    drupal_set_message(t('Sorry, but there was a problem communicating with BitPay for Bitcoin checkout.', array()), 'error');
     return;
   }
 
