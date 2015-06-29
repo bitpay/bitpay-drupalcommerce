@@ -34,17 +34,19 @@ function commerce_bitpay_prepare_invoice($order) {
 
   // Physical Item.
   $shipping_info = $wrapper->commerce_customer_shipping->value();
-  $shipping_services = commerce_shipping_services();
-  if (!empty($shipping_info->commerce_customer_address)) {
-    foreach ($order_total['data']['components'] as $component) {
-      foreach ($shipping_services as $service) {
-        if (isset($service['price_component']) && $service['price_component'] == $component['name']) {
-          $invoice->getItem()->setPhysical(TRUE);
-          break 2;
-        }
-      }
-    }
-  }
+  if (function_exists('commerce_shipping_services')) {
+	  $shipping_services = commerce_shipping_services();
+	  if (!empty($shipping_info->commerce_customer_address)) {
+			foreach ($order_total['data']['components'] as $component) {
+				foreach ($shipping_services as $service) {
+					if (isset($service['price_component']) && $service['price_component'] == $component['name']) {
+						$invoice->getItem()->setPhysical(TRUE);
+						break 2;
+					}
+				}
+			}
+	  }
+	}
 
   // Buyer Information.
   $buyer = new \Bitpay\Buyer();
