@@ -14,6 +14,20 @@ require_once __DIR__.'/includes/commerce_bitpay.currency.inc';
 require_once __DIR__.'/includes/commerce_bitpay.checkout.inc';
 
 /**
+ * Implements hook_form_alter().
+ */
+function commerce_bitpay_form_alter(&$form, &$form_state, $form_id) {
+    if (strpos($form_id, 'commerce_checkout_form_') === 0 && !empty($form['commerce_payment']['payment_method'])) {
+        foreach ($form['commerce_payment']['payment_method']['#options'] as $key => &$value) {
+            list($method_id, $rule_name) = explode('|', $key);
+            if ($method_id == 'commerce_bitpay') {
+                $value = t('Bitcoin') . ' <img src="https://raw.githubusercontent.com/bitpay/bitcoin-brand/master/bitcoin.png" width="23">';
+            }
+        }
+    }
+    return $form;
+}
+/**
  * Implements hook_commerce_payment_method_info().
  */
 function commerce_bitpay_commerce_payment_method_info()
