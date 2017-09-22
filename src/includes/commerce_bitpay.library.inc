@@ -24,12 +24,12 @@ function commerce_bitpay_encrypt($data) {
   if (FALSE === isset($data) || TRUE === empty($data)) {
     throw new \Exception('The Bitpay payment plugin was called to encrypt data but no data was passed!');
   }
-  $mcrypt_ext  = new \Bitpay\Crypto\McryptExtension();
+  $openssl_ext  = new \Bitpay\Crypto\OpensslExtension();
   $fingerprint = substr(sha1(sha1(__DIR__)), 0, 24);
   if (FALSE === isset($fingerprint) || TRUE === empty($fingerprint)) {
     throw new \Exception('The Bitpay payment plugin was called to encrypt data but could not generate a fingerprint parameter!');
   }
-  $encrypted = $mcrypt_ext->encrypt(base64_encode($data), $fingerprint, '00000000');
+  $encrypted = $openssl_ext->encrypt(base64_encode($data), $fingerprint, '1234567890123456');
   if (TRUE === empty($encrypted)) {
     throw new \Exception('The Bitpay payment plugin was called to encrypt data but failed');
   }
@@ -45,12 +45,12 @@ function commerce_bitpay_decrypt($encrypted) {
   if (FALSE === isset($encrypted) || TRUE === empty($encrypted)) {
     throw new \Exception('The Bitpay payment plugin was called to decrypt data but no data was passed!');
   }
-  $mcrypt_ext  = new \Bitpay\Crypto\McryptExtension();
+  $openssl_ext  = new \Bitpay\Crypto\OpensslExtension();
   $fingerprint = substr(sha1(sha1(__DIR__)), 0, 24);
   if (FALSE === isset($fingerprint) || TRUE === empty($fingerprint)) {
     throw new \Exception('The Bitpay payment plugin was called to decrypt data but could not generate a fingerprint parameter!');
   }
-  $decrypted = base64_decode($mcrypt_ext->decrypt($encrypted, $fingerprint, '00000000'));
+  $decrypted = base64_decode($openssl_ext->decrypt($encrypted, $fingerprint, '1234567890123456'));
   // Strict base64 char check.
   if (FALSE === base64_decode($decrypted, TRUE)) {
     $error_string .= 'Data appears to have already been decrypted. Strict base64 check failed.';
