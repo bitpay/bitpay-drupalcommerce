@@ -8,7 +8,6 @@ You must have a BitPay merchant account to use this plugin.  It's free to [sign-
 * [Drupal](https://www.drupal.org/requirements) >= 7
 * [Drupal Commerce](https://drupalcommerce.org/download)
 * [GMP](http://php.net/manual/en/book.gmp.php) or [BCMath](http://php.net/manual/en/book.bc.php) You may have to install GMP as most servers do not come with it, but generally BCMath is already included.
-* [Mcrypt](http://us2.php.net/mcrypt)
 * [OpenSSL](http://us2.php.net/openssl) Must be compiled with PHP
 * [cURL](http://us2.php.net/curl) Must be compiled with PHP and with SSL
 * PHP >= 5.4
@@ -17,7 +16,7 @@ You must have a BitPay merchant account to use this plugin.  It's free to [sign-
 
 1. Go to Administration > Site Settings > Advanced Settings > Modules > Install new module
 
-   In **Install from a URL**, enter `https://github.com/bitpay/bitpay-drupalcommerce/releases/download/v2.3.0/commerce_bitpay-7.x-2.3.0.zip`
+   In **Install from a URL**, enter `https://github.com/bitpay/bitpay-drupalcommerce/releases`
    ![Install a new module](http://sambohler.github.io/drupalcommerce/install.png)
 3. Click **Install**
 4. Go to Administration > Site Settings > Advanced Settings > Modules

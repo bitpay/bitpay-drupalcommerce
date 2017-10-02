@@ -5,7 +5,7 @@
   * @file
   * Implements BitPay payment services for use with Drupal Commerce.
   */
- define('COMMERCE_BITPAY_VERSION', '7.x-2.3.0');
+ define('COMMERCE_BITPAY_VERSION', '7.x-2.3.1');
  define('COMMERCE_BITPAY_MODE_TEST', 'testnet');
  define('COMMERCE_BITPAY_MODE_LIVE', 'livenet');
 

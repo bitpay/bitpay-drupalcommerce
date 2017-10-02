@@ -7,4 +7,4 @@ dependencies[] = commerce_shipping
 core = 7.x
 configure = admin/settings/commerce-bitpay
 php = 5.4
-version = 7.x-2.3.0
+version = 7.x-2.3.1
