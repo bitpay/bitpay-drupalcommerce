@@ -193,7 +193,7 @@ function commerce_bitpay_settings_form($settings = null)
     '#default_value' => $settings['advanced']['url_notification'],
     '#field_suffix' => '<span>Leave blank to use default</span>',
   );
-
+/*
   $placeholder_return = $base_url . '/checkout/%commerce_order/complete';
     $form['advanced']['url_return'] = array(
     '#type' => 'textfield',
@@ -202,6 +202,6 @@ function commerce_bitpay_settings_form($settings = null)
     '#default_value' => $settings['advanced']['url_return'],
     '#field_suffix' => '<span>Leave blank to use default</span>',
   );
-
+*/
     return $form;
 }

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Handle IPNs from BitPay.
@@ -10,9 +9,9 @@
  */
 function commerce_bitpay_prepare_invoice($order)
 {
+   
     // Get order to wrapper.
     $wrapper = entity_metadata_wrapper('commerce_order', $order);
-
     // Bitpay Invoice.
     $invoice = new \Bitpay\Invoice();
 
@@ -27,7 +26,6 @@ function commerce_bitpay_prepare_invoice($order)
         throw \Exception('Cannot prepare invoice without `currency_code`');
     }
     $invoice->setCurrency(new \Bitpay\Currency($order_total['currency_code']));
-
     // Price.
     $amount = $wrapper->commerce_order_total->amount->value();
     $price = commerce_currency_amount_to_decimal($amount, $order_total['currency_code']);
@@ -80,14 +78,13 @@ function commerce_bitpay_prepare_invoice($order)
 
     // Return URL.
     global $base_url;
+    global $user;
     $return_url = commerce_bitpay_setting('url_return');
     if (empty($return_url)) {
-
-        $return_url = $base_url . '/checkout/%commerce_order/complete';
+        $return_url = $base_url. '/user/'.$user->uid.'/orders/'.$order->order_id;
     }
-    $return_url = str_replace('%commerce_order', $order->order_id, $return_url);
     #fix some url issues
-
+    $return_url = $base_url. '/user/'.$user->uid.'/orders/'.$order->order_id;
     $return_url = cleanRedirect($return_url);
 
     $invoice->setRedirectUrl($return_url);
@@ -101,7 +98,7 @@ function commerce_bitpay_prepare_invoice($order)
 
     // Risk/Speed.
     $invoice->setTransactionSpeed(commerce_bitpay_setting('risk_speed'));
-
+   
     return $invoice;
 }
 function cleanRedirect($url)
@@ -143,7 +140,7 @@ function commerce_bitpay_redirect_form($form, &$form_state, $order, $payment_met
         $transaction->message = $invoice->getUrl();
         commerce_payment_transaction_save($transaction);
     } catch (\Exception $e) {
-        drupal_set_message(t('Sorry, but there was a problem communicating with BitPay for Bitcoin checkout.', array(), 'error'));
+        drupal_set_message('Sorry, but there was a problem communicating with BitPay for Bitcoin checkout.', array(), 'error');
         return;
     }
 
